@@ -1,0 +1,80 @@
+@inject HttpClient Http;
+@using System.IdentityModel.Tokens.Jwt;
+@inject NavigationManager MyNavigationManager
+@inject AppDataService.Services.AppData ad;
+@inject BaseURLService.Services.BaseURL baseUrl;
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <div class="container-fluid vw-100" style="margin-top:100px;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <center>
+                            <div>
+                                <img src="icons/IsocratesLogo.jpg" alt="Isocrates" width="80" height="100" />
+                                <h1>
+                                    Oops!
+                                </h1>
+                                <h2>
+                                    404 Not Found
+                                </h2>
+                                <div>
+                                    Sorry, an error has occured, Requested page not found!
+                                    <br />
+                                </div>
+                                <div>
+                                    <MatButton Raised="true" Icon="home" Style="background-color: #4285F4;" Link="@baseUrl.isocratesWebsite">Return to Home</MatButton>
+                                    <MatButton Outlined="true" Icon="email" Style="color: #4285F4;">Contact Helpdesk</MatButton>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+@code
+{
+
+    void GetUserNameIndex()
+    {
+
+        //Console.WriteLine(MyNavigationManager.Uri);
+        var uri = MyNavigationManager.Uri;
+        var uris = uri.ToString().Split("#")[1].ToString();
+
+        if (String.IsNullOrEmpty(uris))
+        {
+            ad.username = "";
+
+        }
+        else
+        {
+            var jwt = uris.Split("=")[1].ToString();
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(jwt);
+
+            var tokenS = handler.ReadToken(jwt) as JwtSecurityToken;
+
+            var name = tokenS.Claims.First(claim => claim.Type == "name").Value;
+            //System.Diagnostics.Debug.WriteLine(name);
+            ad.username = name;
+            //Console.WriteLine("Inside GetUserName()of App.razor " + name);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        //Console.WriteLine("Went inside OnInitializedAsync ");
+        GetUserNameIndex();
+    }
+
+}

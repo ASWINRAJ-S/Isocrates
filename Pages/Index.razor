@@ -1,0 +1,44 @@
+﻿@page "/"
+@inject HttpClient Http;
+@using Newtonsoft.Json;
+@inject NavigationManager MyNavigationManager
+@inject AppDataService.Services.AppData ad;
+@inject BaseURLService.Services.BaseURL baseUrl;
+
+@code
+{
+    public class Blob
+    {
+        public string blobfile { get; set; }
+        public string blobfilename { get; set; }
+        public string filename => blobfilename.Substring(blobfilename.LastIndexOf("/") + 1);
+    }
+    string res;
+    Blob[] blob;
+    protected override async Task OnInitializedAsync()
+    {
+        res = await Http.GetStringAsync(baseUrl.allReports + ad.username);
+        //res = await Http.GetStringAsync(baseUrl.myGit);
+        blob = JsonConvert.DeserializeObject<Blob[]>(res);
+        int flag = 0;
+        foreach(Blob single in blob)
+        {
+            if (single.filename.Equals("username_role.json"))
+            {
+                flag = 1;
+                string userRole = await Http.GetStringAsync(single.blobfilename);
+                if (userRole.Contains("Admin"))
+                    MyNavigationManager.NavigateTo("/Admin/" + ad.username);
+                else if (userRole.Contains("Student"))
+                    MyNavigationManager.NavigateTo("/Student/" + ad.username);
+                else if (userRole.Contains("Teacher"))
+                    MyNavigationManager.NavigateTo("/Teacher/" + ad.username);
+
+                else
+                    MyNavigationManager.NavigateTo("/Error/");
+            }
+        }
+        if(flag == 0)
+            MyNavigationManager.NavigateTo("/Error/");
+    }
+}

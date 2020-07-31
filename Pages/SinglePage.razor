@@ -1,0 +1,19 @@
+﻿@page "/Report/{text}"
+@page "/Attendance/{text}"
+@page "/Assignment/{text}"
+@inject AppDataService.Services.AppData ad;
+@inject BaseURLService.Services.BaseURL baseUrl;
+@if (Text != null)
+{
+    <iframe frameBorder="0" style="width:100vw;height:100vh;" class="embed-responsive-item" src="@(baseUrl.storage+@ad.username+"/"+Text)"></iframe>
+}
+
+@code {
+    [Parameter]
+    public string Text { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Text = Text ?? "Error";
+    }
+}
