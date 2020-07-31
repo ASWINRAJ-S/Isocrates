@@ -54,22 +54,13 @@
         text-align: center;
     }
 
-    .blue-border {
-        border: 2px solid #17A2B8;
-    }
-
-    .img-leader {
-        height: 70px;
-        width: 70px;
-        border-radius: 50%;
-    }
 
     .min {
         min-height: 300px;
     }
 
     #footer {
-        position: relative;
+        position: fixed;
         bottom: 0;
         text-align: center;
         width: 100%;
@@ -206,28 +197,14 @@
         public string blobfilename { get; set; }
         public string filename => blobfilename.Substring(blobfilename.LastIndexOf("/") + 1);
     }
-    public class Video
-    {
-        public string vidUrl { get; set; }
-    }
     Blob[] blob;
     string res;
-    Video[] vid;
     protected override async Task OnInitializedAsync()
     {
         //res = await Http.GetStringAsync(baseUrl.allReports + ad.username);
         res = await Http.GetStringAsync(baseUrl.myGit);
         //Console.WriteLine(res);
         blob = JsonConvert.DeserializeObject<Blob[]>(res);
-        foreach (Blob temp in blob)
-        {
-            if (temp.filename.Equals("Recommended_Videos.json"))
-            {
-                string vidRes = await Http.GetStringAsync(temp.blobfilename);
-                vid = JsonConvert.DeserializeObject<Video[]>(vidRes);
-                break;
-            }
-        }
     }
     protected override void OnAfterRender(bool firstRender)
     {
